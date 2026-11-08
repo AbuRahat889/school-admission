@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SchoolAdmission.Api.Domain;
+using SchoolAdmission.Api.Models;
 
 namespace SchoolAdmission.Api.Data;
 

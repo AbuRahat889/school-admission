@@ -1,4 +1,4 @@
-namespace SchoolAdmission.Api.Domain;
+namespace SchoolAdmission.Api.Models;
 
 /// <summary>
 /// Stored statuses only. EXPIRED is never stored: a HELD hold whose ExpiresAt is in the past

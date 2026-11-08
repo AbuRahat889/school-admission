@@ -25,7 +25,7 @@ namespace SchoolAdmission.Api.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("SchoolAdmission.Api.Domain.Class", b =>
+            modelBuilder.Entity("SchoolAdmission.Api.Models.Class", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -57,7 +57,7 @@ namespace SchoolAdmission.Api.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SchoolAdmission.Api.Domain.Hold", b =>
+            modelBuilder.Entity("SchoolAdmission.Api.Models.Hold", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -117,9 +117,9 @@ namespace SchoolAdmission.Api.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("SchoolAdmission.Api.Domain.Hold", b =>
+            modelBuilder.Entity("SchoolAdmission.Api.Models.Hold", b =>
                 {
-                    b.HasOne("SchoolAdmission.Api.Domain.Class", "Class")
+                    b.HasOne("SchoolAdmission.Api.Models.Class", "Class")
                         .WithMany("Holds")
                         .HasForeignKey("ClassId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -129,7 +129,7 @@ namespace SchoolAdmission.Api.Data.Migrations
                     b.Navigation("Class");
                 });
 
-            modelBuilder.Entity("SchoolAdmission.Api.Domain.Class", b =>
+            modelBuilder.Entity("SchoolAdmission.Api.Models.Class", b =>
                 {
                     b.Navigation("Holds");
                 });

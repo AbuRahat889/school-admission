@@ -1,6 +1,7 @@
 using SchoolAdmission.Api.Data;
-using SchoolAdmission.Api.Domain;
-using SchoolAdmission.Api.Endpoints;
+using SchoolAdmission.Api.Middleware;
+using SchoolAdmission.Api.Services;
+using SchoolAdmission.Api.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +13,19 @@ if (string.IsNullOrEmpty(builder.Configuration["ASPNETCORE_URLS"]) &&
 }
 
 builder.Services.AddAppDb(builder.Configuration);
-builder.Services.AddProblemDetails();
 builder.Services.AddSingleton(HoldOptions.FromConfiguration(builder.Configuration));
 builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IHoldService, HoldService>();
+
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(o =>
+    {
+        // All 4xx bodies are ErrorResponse: validation via the factory, the rest via ErrorHandlingMiddleware.
+        o.InvalidModelStateResponseFactory = ValidationErrorFactory.Create;
+        o.SuppressMapClientErrors = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -22,16 +33,11 @@ var app = builder.Build();
 
 await DbSetup.MigrateAsync(app.Services, app.Logger);
 
-app.UseExceptionHandler();
-app.UseStatusCodePages();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
-   .WithName("Health");
-
-app.MapClassEndpoints();
-app.MapHoldEndpoints();
+app.MapControllers();
 
 app.Run();
 

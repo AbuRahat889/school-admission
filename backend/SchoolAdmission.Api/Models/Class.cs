@@ -1,4 +1,4 @@
-namespace SchoolAdmission.Api.Domain;
+namespace SchoolAdmission.Api.Models;
 
 public class Class
 {
