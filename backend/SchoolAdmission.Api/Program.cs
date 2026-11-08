@@ -1,4 +1,5 @@
 using SchoolAdmission.Api.Data;
+using SchoolAdmission.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ if (string.IsNullOrEmpty(builder.Configuration["ASPNETCORE_URLS"]) &&
 }
 
 builder.Services.AddAppDb(builder.Configuration);
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -17,11 +19,15 @@ var app = builder.Build();
 
 await DbSetup.MigrateAsync(app.Services, app.Logger);
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }))
    .WithName("Health");
+
+app.MapClassEndpoints();
 
 app.Run();
 
