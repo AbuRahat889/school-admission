@@ -7,7 +7,7 @@ namespace SchoolAdmission.Api.Controllers;
 
 [ApiController]
 [Produces("application/json")]
-public sealed class HoldsController(IHoldService holds) : ControllerBase
+public sealed class HoldsController(IHoldService holds, TimeProvider clock) : ControllerBase
 {
     public const string StudentIdHeader = "X-Student-Id";
     // [0-9] (not \d) so only ASCII digits pass. Repeated headers bind as "a,b" and fail too.
@@ -30,5 +30,14 @@ public sealed class HoldsController(IHoldService holds) : ControllerBase
     {
         var hold = await holds.CreateAsync(classId, studentId, ct);
         return Created($"/holds/{hold.Id}", hold.ToCreatedResponse());
+    }
+
+    [HttpGet("holds/{holdId:guid}")]
+    [ProducesResponseType<HoldResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get(Guid holdId, CancellationToken ct)
+    {
+        var hold = await holds.GetAsync(holdId, ct);
+        return Ok(hold.ToResponse(clock.GetUtcNow()));
     }
 }

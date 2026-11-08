@@ -69,4 +69,10 @@ public sealed class HoldService(AppDbContext db, HoldOptions options, TimeProvid
 
         return hold;
     }
+
+    public async Task<Hold> GetAsync(Guid holdId, CancellationToken ct = default) =>
+        await db.Holds.AsNoTracking().FirstOrDefaultAsync(h => h.Id == holdId, ct)
+        ?? throw HoldNotFound(holdId);
+
+    private static NotFoundException HoldNotFound(Guid holdId) => new($"Hold {holdId} was not found.");
 }

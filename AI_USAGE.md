@@ -22,7 +22,10 @@ Running list of what the AI assistant (Claude Code) did, and mistakes caught by 
    - Migrations: entity namespace `Domain` → `Models` updated in the migration designer/snapshot; `dotnet ef migrations has-pending-model-changes` → none.
    - Verified in Docker: 2xx shapes and Location headers diffed against a pre-refactor baseline (identical); all 400/404/405/409/415 paths return ErrorResponse; stopping the DB gives a 500 ErrorResponse; 40 students on 5 seats → 5×201, 35×409.
    - Behavior notes: error bodies changed from problem+json to ErrorResponse, as requested. A repeated `X-Student-Id` header now says "must be exactly 17 digits" instead of "must be sent once" (still 400).
+8. **feat(backend): GET hold with derived expiry** — `GET /holds/{holdId}` → `{holdId, classId, status, expiresAt}`, 404 for an unknown id. Status is derived with `Hold.IsExpired(now)` (HELD and `expiresAt <= now` → `EXPIRED`); the stored status is never changed on read. Verified HELD / EXPIRED (stored row still HELD, class counts exclude it) / CONFIRMED past expiresAt (stays CONFIRMED) / CANCELLED / unknown / non-guid id.
+   - Note: the CLAUDE.md contract line still lists `HELD|CONFIRMED|CANCELLED` for this endpoint. Followed the user's step instruction (derived EXPIRED, consistent with rules 2 and 8).
 
 ## Mistakes caught
 
-_(none yet)_
+- **Commit trailers:** I added `Co-Authored-By` trailers to my commits. The user rewrote them out and added a "NEVER add trailers" rule to CLAUDE.md plus `.claude/settings.json`. Commits no longer have trailers.
+- **Build issue after the refactor:** the user had to fix a build problem (commit `ea21eba`, "solve build issue") by turning `Program.cs` from top-level statements into an explicit `Program.Main`. It built under my SDK 10 toolchain, so I didn't catch it; most likely cause is the C# 12-only `public partial class Program;` declaration on the user's toolchain.

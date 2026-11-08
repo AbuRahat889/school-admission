@@ -24,4 +24,7 @@ public class Hold
     public DateTimeOffset ExpiresAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? ConfirmedAt { get; set; }
+
+    // Derived expiry (rule 2): a HELD hold is EXPIRED once expiresAt <= now. Never stored.
+    public bool IsExpired(DateTimeOffset now) => Status == HoldStatus.Held && ExpiresAt <= now;
 }
