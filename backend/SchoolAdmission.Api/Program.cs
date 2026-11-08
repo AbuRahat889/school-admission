@@ -5,6 +5,8 @@ using SchoolAdmission.Api.Services.Interfaces;
 
 public partial class Program
 {
+    private const string FrontendCorsPolicy = "frontend";
+
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +32,11 @@ public partial class Program
                 o.InvalidModelStateResponseFactory = ValidationErrorFactory.Create;
                 o.SuppressMapClientErrors = true;
             });
+        builder.Services.AddCors(o => o.AddPolicy(FrontendCorsPolicy, p => p
+            .WithOrigins("http://localhost:5173", "http://localhost:3000")
+            .AllowAnyHeader()   // X-Student-Id, Content-Type
+            .AllowAnyMethod()   // incl. DELETE and preflight
+            .WithExposedHeaders("Location")));
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -37,6 +44,8 @@ public partial class Program
 
         await DbSetup.MigrateAsync(app.Services, app.Logger);
 
+        // CORS first so preflights short-circuit and error responses carry CORS headers too.
+        app.UseCors(FrontendCorsPolicy);
         app.UseMiddleware<ErrorHandlingMiddleware>();
         app.UseSwagger();
         app.UseSwaggerUI();

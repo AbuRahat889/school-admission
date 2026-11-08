@@ -9,6 +9,8 @@ public sealed class CreateClassRequest
     // [Required] on a string also rejects empty and whitespace-only values.
     [Required(ErrorMessage = "Name is required.")]
     [StringLength(MaxNameLength, ErrorMessage = "Name must be at most 200 characters.")]
+    // Control chars (incl. NUL, which PostgreSQL text cannot store) are rejected up front.
+    [RegularExpression(@"^\P{Cc}*$", ErrorMessage = "Name must not contain control characters.")]
     public string? Name { get; init; }
 
     [Required(ErrorMessage = "totalSeats is required.")]

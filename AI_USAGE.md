@@ -29,6 +29,11 @@ Running list of what the AI assistant (Claude Code) did, and mistakes caught by 
    - Cancel: CONFIRMED → 409; CANCELLED or EXPIRED → 204 no-op (an expired hold is left as stored HELD so it keeps reading EXPIRED); live HELD → CANCELLED → 204 with no body.
    - Verified in Docker: every status path. 20 parallel confirms → 20×200 with confirmedSeats +1 once. 10 confirm-vs-cancel races → always a consistent pair (confirm 200 + cancel 409 → CONFIRMED). No 500s.
 10. **feat(backend): GET /me/holds** — header required (400). Returns all of the student's holds, any status, newest first (`created_at DESC, id DESC`), each `{holdId, classId, className, status, expiresAt}` with derived EXPIRED; LINQ with `Include(Class)`. Verified ordering, HELD/CONFIRMED/EXPIRED mix, isolation between students, empty list `[]`, and missing/invalid header.
+11. **fix(backend): error handling and CORS** — swept invalid-input paths for 500s with a fuzz script (bad/huge/negative numbers, wrong types, array/string/`null` bodies, deep nesting, invalid UTF-8, lone surrogates, wrong Content-Type, empty, spaced or 1000-digit headers, junk bodies on hold endpoints, unknown routes and methods).
+   - **Found and fixed a real 500:** a class name containing `\u0000` passed validation and Postgres rejected it on insert. Control characters (e.g. `\u0007`) were also accepted. Added `[RegularExpression(@"^\P{Cc}*$")]` on `name` → 400 "Name must not contain control characters." As defense in depth, the middleware maps PostgreSQL SQLSTATE class 22 and 23514 to 400 and 23505 to 409 instead of 500.
+   - CORS policy for `http://localhost:5173` and `http://localhost:3000`: any header (`X-Student-Id`), any method (DELETE preflight), exposes `Location`. Registered before the error middleware, and verified that error responses (400/404) carry the CORS headers too; a disallowed origin gets none.
+   - Smoke-tested all 8 endpoints plus the error paths after `docker compose up --build`: 0 unhandled exceptions in the log.
+   - Leftover: one test class named `"a\u0007b"` was created in the dev DB before the fix (not a code issue).
 
 ## Mistakes caught
 

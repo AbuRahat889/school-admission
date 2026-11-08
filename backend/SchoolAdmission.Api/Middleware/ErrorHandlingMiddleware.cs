@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.WebUtilities;
+using Npgsql;
 using SchoolAdmission.Api.DTOs;
 using SchoolAdmission.Api.Services.Exceptions;
 
@@ -20,6 +21,14 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
         catch (BadHttpRequestException ex)
         {
             await WriteAsync(context, ex.StatusCode, "The request is malformed.");
+            return;
+        }
+        catch (Exception ex) when (FindPostgresError(ex) is { } pg && ClientErrorFor(pg) is { } mapped)
+        {
+            // Defense in depth: input that slipped past validation but the DB rejected is still the client's fault.
+            logger.LogWarning(ex, "Database rejected input ({SqlState}) for {Method} {Path}",
+                pg.SqlState, context.Request.Method, context.Request.Path);
+            await WriteAsync(context, mapped.Status, mapped.Message);
             return;
         }
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
@@ -55,6 +64,24 @@ public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorH
         context.Response.StatusCode = statusCode;
         await context.Response.WriteAsJsonAsync(ErrorResponse.Create(statusCode, message));
     }
+
+    private static PostgresException? FindPostgresError(Exception? ex)
+    {
+        for (; ex is not null; ex = ex.InnerException)
+            if (ex is PostgresException pg) return pg;
+        return null;
+    }
+
+    // SQLSTATE class 22 = data exception (bad characters, out of range, ...); 23514 = check constraint;
+    // 23505 = unique violation (e.g. a second active hold). Anything else stays a 500.
+    private static (int Status, string Message)? ClientErrorFor(PostgresException pg) => pg.SqlState switch
+    {
+        PostgresErrorCodes.UniqueViolation => (StatusCodes.Status409Conflict, "This conflicts with an existing record."),
+        PostgresErrorCodes.CheckViolation => (StatusCodes.Status400BadRequest, "One or more values are not allowed."),
+        var s when s.StartsWith("22", StringComparison.Ordinal) =>
+            (StatusCodes.Status400BadRequest, "One or more values are invalid or contain unsupported characters."),
+        _ => null,
+    };
 
     private static string DefaultMessage(int statusCode) => statusCode switch
     {
