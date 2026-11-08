@@ -21,4 +21,28 @@ public static class DbSetup
 
         return services.AddDbContext<AppDbContext>(o => Configure(o, cs));
     }
+
+    /// <summary>
+    /// Applies pending EF migrations at startup. Retries briefly in case the DB accepts
+    /// connections a moment after its healthcheck passes.
+    /// </summary>
+    public static async Task MigrateAsync(IServiceProvider services, ILogger logger, int attempts = 10)
+    {
+        for (var i = 1; ; i++)
+        {
+            try
+            {
+                using var scope = services.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                await db.Database.MigrateAsync();
+                logger.LogInformation("Database migrations applied.");
+                return;
+            }
+            catch (Exception ex) when (i < attempts)
+            {
+                logger.LogWarning(ex, "Migration attempt {Attempt}/{Max} failed, retrying in 2s", i, attempts);
+                await Task.Delay(TimeSpan.FromSeconds(2));
+            }
+        }
+    }
 }
