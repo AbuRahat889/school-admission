@@ -1,0 +1,45 @@
+CLAUDE.md
+
+# ---------- .NET ----------
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+.vs/
+*.DotSettings.user
+TestResults/
+*.trx
+*.coverage
+coverage*.xml
+appsettings.*.local.json
+
+# ---------- Node / Vite ----------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+coverage/
+
+# ---------- Env / secrets ----------
+.env
+.env.*
+!.env.example
+
+# ---------- Docker ----------
+docker-compose.override.yml
+*.pid
+
+# ---------- Editors / OS ----------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+Thumbs.db
