@@ -68,6 +68,14 @@ public sealed class HoldService(AppDbContext db, HoldOptions options, TimeProvid
         await db.Holds.AsNoTracking().FirstOrDefaultAsync(h => h.Id == holdId, ct)
         ?? throw HoldNotFound(holdId);
 
+    public async Task<IReadOnlyList<Hold>> ListForStudentAsync(string studentId, CancellationToken ct = default) =>
+        await db.Holds.AsNoTracking()
+            .Include(h => h.Class)
+            .Where(h => h.StudentId == studentId)
+            .OrderByDescending(h => h.CreatedAt)
+            .ThenByDescending(h => h.Id) // stable order for holds created in the same instant
+            .ToListAsync(ct);
+
     public async Task<Hold> ConfirmAsync(Guid holdId, string studentId, CancellationToken ct = default)
     {
         var classId = await CheckOwnershipAsync(holdId, studentId, ct);

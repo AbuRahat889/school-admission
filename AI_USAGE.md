@@ -28,6 +28,7 @@ Running list of what the AI assistant (Claude Code) did, and mistakes caught by 
    - Confirm: CONFIRMED → 200 unchanged (idempotent); CANCELLED or EXPIRED → 409; live HELD → CONFIRMED (+ `confirmed_at`) → 200 `{holdId, status}`.
    - Cancel: CONFIRMED → 409; CANCELLED or EXPIRED → 204 no-op (an expired hold is left as stored HELD so it keeps reading EXPIRED); live HELD → CANCELLED → 204 with no body.
    - Verified in Docker: every status path. 20 parallel confirms → 20×200 with confirmedSeats +1 once. 10 confirm-vs-cancel races → always a consistent pair (confirm 200 + cancel 409 → CONFIRMED). No 500s.
+10. **feat(backend): GET /me/holds** — header required (400). Returns all of the student's holds, any status, newest first (`created_at DESC, id DESC`), each `{holdId, classId, className, status, expiresAt}` with derived EXPIRED; LINQ with `Include(Class)`. Verified ordering, HELD/CONFIRMED/EXPIRED mix, isolation between students, empty list `[]`, and missing/invalid header.
 
 ## Mistakes caught
 

@@ -41,6 +41,21 @@ public sealed class HoldsController(IHoldService holds, TimeProvider clock) : Co
         return Ok(hold.ToResponse(clock.GetUtcNow()));
     }
 
+    [HttpGet("me/holds")]
+    [ProducesResponseType<IEnumerable<MyHoldResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Mine(
+        [FromHeader(Name = StudentIdHeader)]
+        [Required(ErrorMessage = StudentIdRequiredMessage)]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatMessage)]
+        string studentId,
+        CancellationToken ct)
+    {
+        var list = await holds.ListForStudentAsync(studentId, ct);
+        var now = clock.GetUtcNow();
+        return Ok(list.Select(h => h.ToMyHoldResponse(now)));
+    }
+
     [HttpPost("holds/{holdId:guid}/confirm")]
     [ProducesResponseType<HoldConfirmedResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]

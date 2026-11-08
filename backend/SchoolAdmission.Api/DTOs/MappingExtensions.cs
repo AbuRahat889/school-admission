@@ -17,6 +17,10 @@ public static class MappingExtensions
     public static HoldResponse ToResponse(this Hold h, DateTimeOffset now) =>
         new(h.Id, h.ClassId, h.ToApiStatus(now), h.ExpiresAt);
 
+    /// <summary>Requires <see cref="Hold.Class"/> to be loaded.</summary>
+    public static MyHoldResponse ToMyHoldResponse(this Hold h, DateTimeOffset now) =>
+        new(h.Id, h.ClassId, h.Class.Name, h.ToApiStatus(now), h.ExpiresAt);
+
     public static HoldConfirmedResponse ToConfirmedResponse(this Hold h) =>
         new(h.Id, h.Status.ToApiString());
 

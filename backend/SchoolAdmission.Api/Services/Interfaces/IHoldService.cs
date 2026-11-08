@@ -13,6 +13,9 @@ public interface IHoldService
     /// <exception cref="Exceptions.NotFoundException">Hold does not exist.</exception>
     Task<Hold> GetAsync(Guid holdId, CancellationToken ct = default);
 
+    // All holds of a student (any status), newest first, with Class loaded for its name.
+    Task<IReadOnlyList<Hold>> ListForStudentAsync(string studentId, CancellationToken ct = default);
+
     // Idempotent: an already CONFIRMED hold is returned unchanged.
     /// <exception cref="Exceptions.NotFoundException">Hold does not exist.</exception>
     /// <exception cref="Exceptions.ForbiddenException">Hold belongs to another student.</exception>
