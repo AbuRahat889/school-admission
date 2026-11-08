@@ -30,3 +30,7 @@ GET /me/holds (header X-Student-Id) -> [{holdId,classId,className,status,expires
 - Work in small steps. After each step: build/test, show me a summary, then commit with a conventional message (feat/fix/test/chore/docs(scope): ...). Never one big commit.
 - Keep a running list in AI_USAGE.md of what you did and any mistakes you made that I caught.
 - Do not add Redis or any other service beyond postgres, backend, frontend.
+
+## Commits
+- Plain conventional commit messages only, one line subject, optional short body.
+- NEVER add trailers: no Co-Authored-By, no "Generated with Claude Code", no Claude-Session.
