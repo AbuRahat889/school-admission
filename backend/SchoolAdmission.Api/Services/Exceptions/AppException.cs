@@ -1,9 +1,9 @@
 namespace SchoolAdmission.Api.Services.Exceptions;
 
-/// <summary>
+
 /// Expected, client-caused failures. The error middleware turns these into an ErrorResponse
 /// with the given status code; the message is shown to the user as-is.
-/// </summary>
+
 public abstract class AppException(int statusCode, string message) : Exception(message)
 {
     public int StatusCode { get; } = statusCode;

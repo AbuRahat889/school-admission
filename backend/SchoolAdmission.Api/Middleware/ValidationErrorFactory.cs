@@ -4,10 +4,10 @@ using SchoolAdmission.Api.DTOs;
 
 namespace SchoolAdmission.Api.Middleware;
 
-/// <summary>
+
 /// Turns [ApiController] model-state failures (data annotations, malformed JSON, missing body,
 /// missing/invalid headers) into a 400 ErrorResponse with human-readable messages.
-/// </summary>
+
 public static class ValidationErrorFactory
 {
     private const string BodyKey = "body";

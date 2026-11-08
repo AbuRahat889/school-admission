@@ -33,10 +33,10 @@ public sealed class ClassService(AppDbContext db, TimeProvider clock) : IClassSe
             .FirstOrDefaultAsync(ct)
         ?? throw new NotFoundException($"Class {classId} was not found.");
 
-    /// <summary>
+
     /// Single source of truth for seat counts. Filter/order the classes first, then project:
     /// held = HELD with expiresAt > now, confirmed = CONFIRMED.
-    /// </summary>
+
     private static IQueryable<ClassSeatSummary> WithSeatCounts(IQueryable<Class> classes, DateTimeOffset now) =>
         classes.AsNoTracking().Select(c => new ClassSeatSummary
         {

@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace SchoolAdmission.Api.Data;
 
-/// <summary>
+
 /// Used only by `dotnet ef` so migrations can be generated without a running database
 /// or the full app configuration.
-/// </summary>
+
 public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
 {
     public AppDbContext CreateDbContext(string[] args)

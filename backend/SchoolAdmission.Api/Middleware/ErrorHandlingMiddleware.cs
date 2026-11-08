@@ -4,14 +4,6 @@ using SchoolAdmission.Api.Services.Exceptions;
 
 namespace SchoolAdmission.Api.Middleware;
 
-/// <summary>
-/// Single place that produces error bodies:
-///  1. AppException (404/409/400 from services)  -> ErrorResponse with its status + message
-///  2. BadHttpRequestException (framework 4xx)   -> ErrorResponse with its status
-///  3. anything else                             -> 500 ErrorResponse (details only in logs)
-///  4. any 4xx/5xx that finished with no body    -> ErrorResponse (e.g. unknown route 404, 405, 415)
-/// 2xx/3xx responses are never touched.
-/// </summary>
 public sealed class ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
 {
     public async Task InvokeAsync(HttpContext context)

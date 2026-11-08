@@ -7,10 +7,10 @@ public static class DbSetup
     public static void Configure(DbContextOptionsBuilder options, string connectionString) =>
         options.UseNpgsql(connectionString).UseSnakeCaseNamingConvention();
 
-    /// <summary>
+
     /// Reads the connection string from the env var <c>ConnectionStrings__Default</c>
     /// (standard .NET config binding, also settable via appsettings). Fails fast if missing.
-    /// </summary>
+
     public static IServiceCollection AddAppDb(this IServiceCollection services, IConfiguration config)
     {
         var cs = config.GetConnectionString("Default");
@@ -22,10 +22,10 @@ public static class DbSetup
         return services.AddDbContext<AppDbContext>(o => Configure(o, cs));
     }
 
-    /// <summary>
+
     /// Applies pending EF migrations at startup. Retries briefly in case the DB accepts
     /// connections a moment after its healthcheck passes.
-    /// </summary>
+
     public static async Task MigrateAsync(IServiceProvider services, ILogger logger, int attempts = 10)
     {
         for (var i = 1; ; i++)

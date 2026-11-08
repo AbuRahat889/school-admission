@@ -11,7 +11,7 @@ POST /classes {name,totalSeats} -> 201 {id,name,totalSeats}
 GET /classes -> [{id,name,totalSeats,heldSeats,confirmedSeats,availableSeats}]
 GET /classes/{classId} -> same shape as above
 POST /classes/{classId}/holds (header X-Student-Id) -> 201 {holdId,classId,studentId,status,expiresAt}; 409 if full
-GET /holds/{holdId} -> {holdId,classId,status,expiresAt}; status: HELD|CONFIRMED|EXPIRED|CANCELLED
+GET /holds/{holdId} -> {holdId,classId,status,expiresAt}; status: HELD|CONFIRMED|CANCELLED
 POST /holds/{holdId}/confirm (header X-Student-Id) -> 200 {holdId,status}
 DELETE /holds/{holdId} (header X-Student-Id) -> 204
 GET /me/holds (header X-Student-Id) -> [{holdId,classId,className,status,expiresAt}]

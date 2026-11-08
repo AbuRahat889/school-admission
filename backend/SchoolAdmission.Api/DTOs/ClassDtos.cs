@@ -16,9 +16,9 @@ public sealed class CreateClassRequest
     public int? TotalSeats { get; init; }
 }
 
-/// <summary>POST /classes -> 201 {id,name,totalSeats}</summary>
+// POST /classes -> 201 {id,name,totalSeats}</ summary >
 public sealed record ClassCreatedResponse(Guid Id, string Name, int TotalSeats);
 
-/// <summary>GET /classes, GET /classes/{classId} -> {id,name,totalSeats,heldSeats,confirmedSeats,availableSeats}</summary>
+// GET / classes, GET / classes /{ classId} -> { id,name,totalSeats,heldSeats,confirmedSeats,availableSeats}</ summary >
 public sealed record ClassResponse(
     Guid Id, string Name, int TotalSeats, int HeldSeats, int ConfirmedSeats, int AvailableSeats);
