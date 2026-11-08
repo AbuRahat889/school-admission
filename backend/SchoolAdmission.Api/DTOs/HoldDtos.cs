@@ -6,3 +6,6 @@ public sealed record HoldCreatedResponse(
 
 /// <summary>GET /holds/{holdId} -> {holdId,classId,status,expiresAt}; status HELD|CONFIRMED|CANCELLED|EXPIRED</summary>
 public sealed record HoldResponse(Guid HoldId, Guid ClassId, string Status, DateTimeOffset ExpiresAt);
+
+/// <summary>POST /holds/{holdId}/confirm -> 200 {holdId,status}</summary>
+public sealed record HoldConfirmedResponse(Guid HoldId, string Status);

@@ -24,6 +24,10 @@ Running list of what the AI assistant (Claude Code) did, and mistakes caught by 
    - Behavior notes: error bodies changed from problem+json to ErrorResponse, as requested. A repeated `X-Student-Id` header now says "must be exactly 17 digits" instead of "must be sent once" (still 400).
 8. **feat(backend): GET hold with derived expiry** — `GET /holds/{holdId}` → `{holdId, classId, status, expiresAt}`, 404 for an unknown id. Status is derived with `Hold.IsExpired(now)` (HELD and `expiresAt <= now` → `EXPIRED`); the stored status is never changed on read. Verified HELD / EXPIRED (stored row still HELD, class counts exclude it) / CONFIRMED past expiresAt (stays CONFIRMED) / CANCELLED / unknown / non-guid id.
    - Note: the CLAUDE.md contract line still lists `HELD|CONFIRMED|CANCELLED` for this endpoint. Followed the user's step instruction (derived EXPIRED, consistent with rules 2 and 8).
+9. **feat(backend): confirm (idempotent) and cancel** — `POST /holds/{id}/confirm` and `DELETE /holds/{id}`, both requiring `X-Student-Id` (400). Both follow the same pattern: an unlocked ownership read (404 unknown, 403 another student's hold), then a transaction that locks the class row with `FOR UPDATE` (same lock order as hold creation), re-reads the hold, and decides.
+   - Confirm: CONFIRMED → 200 unchanged (idempotent); CANCELLED or EXPIRED → 409; live HELD → CONFIRMED (+ `confirmed_at`) → 200 `{holdId, status}`.
+   - Cancel: CONFIRMED → 409; CANCELLED or EXPIRED → 204 no-op (an expired hold is left as stored HELD so it keeps reading EXPIRED); live HELD → CANCELLED → 204 with no body.
+   - Verified in Docker: every status path. 20 parallel confirms → 20×200 with confirmedSeats +1 once. 10 confirm-vs-cancel races → always a consistent pair (confirm 200 + cancel 409 → CONFIRMED). No 500s.
 
 ## Mistakes caught
 

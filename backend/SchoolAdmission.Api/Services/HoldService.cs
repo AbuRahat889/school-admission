@@ -14,13 +14,7 @@ public sealed class HoldService(AppDbContext db, HoldOptions options, TimeProvid
         await using var tx = await db.Database.BeginTransactionAsync(ct);
 
         // Rule 1: serialize hold creation per class on its row lock, then recount.
-        // EF Core 8 has no LINQ operator for FOR UPDATE, so this one statement is raw SQL
-        // (parameterized; not composed further so EF sends it as-is).
-        var locked = await db.Classes
-            .FromSql($"SELECT * FROM classes WHERE id = {classId} FOR UPDATE")
-            .AsNoTracking()
-            .ToListAsync(ct);
-        var cls = locked.FirstOrDefault()
+        var cls = await LockClassAsync(classId, ct)
                   ?? throw new NotFoundException($"Class {classId} was not found.");
 
         var now = clock.GetUtcNow();
@@ -73,6 +67,82 @@ public sealed class HoldService(AppDbContext db, HoldOptions options, TimeProvid
     public async Task<Hold> GetAsync(Guid holdId, CancellationToken ct = default) =>
         await db.Holds.AsNoTracking().FirstOrDefaultAsync(h => h.Id == holdId, ct)
         ?? throw HoldNotFound(holdId);
+
+    public async Task<Hold> ConfirmAsync(Guid holdId, string studentId, CancellationToken ct = default)
+    {
+        var classId = await CheckOwnershipAsync(holdId, studentId, ct);
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await LockClassAsync(classId, ct);
+
+        // Re-read under the class lock: a concurrent confirm/cancel/create on this class has finished.
+        var hold = await db.Holds.FirstOrDefaultAsync(h => h.Id == holdId, ct) ?? throw HoldNotFound(holdId);
+        var now = clock.GetUtcNow();
+
+        if (hold.Status == HoldStatus.Confirmed)
+            return hold; // Rule 5: idempotent, nothing changes.
+        if (hold.Status == HoldStatus.Cancelled)
+            throw new ConflictException("This hold was cancelled and can no longer be confirmed.");
+        if (hold.IsExpired(now))
+            throw new ConflictException("This hold has expired. Please place a new hold.");
+
+        // HELD and not expired. Its seat is already counted as held, so capacity cannot be exceeded.
+        hold.Status = HoldStatus.Confirmed;
+        hold.ConfirmedAt = now;
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+        return hold;
+    }
+
+    public async Task CancelAsync(Guid holdId, string studentId, CancellationToken ct = default)
+    {
+        var classId = await CheckOwnershipAsync(holdId, studentId, ct);
+
+        await using var tx = await db.Database.BeginTransactionAsync(ct);
+        await LockClassAsync(classId, ct);
+
+        var hold = await db.Holds.FirstOrDefaultAsync(h => h.Id == holdId, ct) ?? throw HoldNotFound(holdId);
+        var now = clock.GetUtcNow();
+
+        if (hold.Status == HoldStatus.Confirmed)
+            throw new ConflictException("A confirmed admission cannot be cancelled.");
+
+        // Already CANCELLED, or EXPIRED (left as stored HELD so it keeps reading as EXPIRED): no-op.
+        if (hold.Status == HoldStatus.Cancelled || hold.IsExpired(now))
+            return;
+
+        hold.Status = HoldStatus.Cancelled;
+        await db.SaveChangesAsync(ct);
+        await tx.CommitAsync(ct);
+    }
+
+    /// <summary>404 if the hold doesn't exist, 403 if it isn't this student's. Returns its class id.</summary>
+    private async Task<Guid> CheckOwnershipAsync(Guid holdId, string studentId, CancellationToken ct)
+    {
+        var owner = await db.Holds.AsNoTracking()
+                        .Where(h => h.Id == holdId)
+                        .Select(h => new { h.ClassId, h.StudentId })
+                        .FirstOrDefaultAsync(ct)
+                    ?? throw HoldNotFound(holdId);
+        if (owner.StudentId != studentId)
+            throw new ForbiddenException("This hold belongs to another student.");
+        return owner.ClassId;
+    }
+
+    /// <summary>
+    /// Locks the class row for the rest of the transaction (rule 1). Every write path
+    /// (create, confirm, cancel) takes this lock first, so they serialize per class.
+    /// EF Core 8 has no LINQ operator for FOR UPDATE, so this one statement is raw SQL
+    /// (parameterized; not composed further so EF sends it as-is).
+    /// </summary>
+    private async Task<Class?> LockClassAsync(Guid classId, CancellationToken ct)
+    {
+        var rows = await db.Classes
+            .FromSql($"SELECT * FROM classes WHERE id = {classId} FOR UPDATE")
+            .AsNoTracking()
+            .ToListAsync(ct);
+        return rows.FirstOrDefault();
+    }
 
     private static NotFoundException HoldNotFound(Guid holdId) => new($"Hold {holdId} was not found.");
 }

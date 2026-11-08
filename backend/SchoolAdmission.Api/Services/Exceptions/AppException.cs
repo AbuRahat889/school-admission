@@ -11,6 +11,8 @@ public abstract class AppException(int statusCode, string message) : Exception(m
 
 public sealed class NotFoundException(string message) : AppException(StatusCodes.Status404NotFound, message);
 
+public sealed class ForbiddenException(string message) : AppException(StatusCodes.Status403Forbidden, message);
+
 public sealed class ConflictException(string message) : AppException(StatusCodes.Status409Conflict, message);
 
 public sealed class BadRequestException(string message) : AppException(StatusCodes.Status400BadRequest, message);

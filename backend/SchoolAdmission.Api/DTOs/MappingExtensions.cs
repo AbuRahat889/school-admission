@@ -17,6 +17,9 @@ public static class MappingExtensions
     public static HoldResponse ToResponse(this Hold h, DateTimeOffset now) =>
         new(h.Id, h.ClassId, h.ToApiStatus(now), h.ExpiresAt);
 
+    public static HoldConfirmedResponse ToConfirmedResponse(this Hold h) =>
+        new(h.Id, h.Status.ToApiString());
+
     public const string ExpiredStatus = "EXPIRED";
 
     /// <summary>Status as seen by clients: stored status, except a lapsed HELD hold reads as EXPIRED.</summary>

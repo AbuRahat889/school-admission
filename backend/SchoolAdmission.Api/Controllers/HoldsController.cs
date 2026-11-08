@@ -40,4 +40,40 @@ public sealed class HoldsController(IHoldService holds, TimeProvider clock) : Co
         var hold = await holds.GetAsync(holdId, ct);
         return Ok(hold.ToResponse(clock.GetUtcNow()));
     }
+
+    [HttpPost("holds/{holdId:guid}/confirm")]
+    [ProducesResponseType<HoldConfirmedResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Confirm(
+        Guid holdId,
+        [FromHeader(Name = StudentIdHeader)]
+        [Required(ErrorMessage = StudentIdRequiredMessage)]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatMessage)]
+        string studentId,
+        CancellationToken ct)
+    {
+        var hold = await holds.ConfirmAsync(holdId, studentId, ct);
+        return Ok(hold.ToConfirmedResponse());
+    }
+
+    [HttpDelete("holds/{holdId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ErrorResponse>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> Cancel(
+        Guid holdId,
+        [FromHeader(Name = StudentIdHeader)]
+        [Required(ErrorMessage = StudentIdRequiredMessage)]
+        [RegularExpression(StudentIdPattern, ErrorMessage = StudentIdFormatMessage)]
+        string studentId,
+        CancellationToken ct)
+    {
+        await holds.CancelAsync(holdId, studentId, ct);
+        return NoContent();
+    }
 }
