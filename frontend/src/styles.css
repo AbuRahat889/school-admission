@@ -145,3 +145,173 @@ a {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.topbar-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  flex: 1 1 auto;
+}
+
+/* ---------- form controls ---------- */
+.input {
+  font: inherit;
+  width: 100%;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.input:focus {
+  outline: 2px solid color-mix(in srgb, var(--primary) 35%, transparent);
+  border-color: var(--primary);
+}
+
+.input-invalid {
+  border-color: var(--danger);
+}
+
+.hint {
+  display: block;
+  font-size: 0.82rem;
+  margin-top: 0.2rem;
+}
+
+.hint-muted {
+  color: var(--muted);
+}
+
+.hint-ok {
+  color: var(--success);
+}
+
+.hint-error {
+  color: var(--danger);
+}
+
+.student-id {
+  flex: 0 1 300px;
+  min-width: 240px;
+}
+
+.student-id label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.student-id .input {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+/* ---------- page + cards ---------- */
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page-head h1 {
+  margin: 0;
+}
+
+a.btn {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.empty {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.card-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.card-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.card-note-error {
+  color: var(--danger);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.stat {
+  background: var(--neutral-bg);
+  border-radius: 8px;
+  padding: 0.35rem 0.25rem;
+  text-align: center;
+}
+
+.stat dt {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.stat dd {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-some {
+  background: var(--success-bg);
+}
+
+.stat-some dd {
+  color: var(--success);
+}
+
+.stat-none {
+  background: var(--danger-bg);
+}
+
+.stat-none dd {
+  color: var(--danger);
+}

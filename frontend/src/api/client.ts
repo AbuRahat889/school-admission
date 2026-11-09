@@ -1,4 +1,4 @@
-import { NETWORK_ERROR_BN, toBanglaFieldErrors, toBanglaMessage } from '../lib/errors';
+import { GENERIC_ERROR_BN, NETWORK_ERROR_BN, toBanglaFieldErrors, toBanglaMessage } from '../lib/errors';
 import { readStudentId } from '../lib/studentId';
 import type {
   ClassCreated,
@@ -31,6 +31,13 @@ export class ApiError extends Error {
   get isNetworkError(): boolean {
     return this.status === 0;
   }
+}
+
+/** Normalizes anything thrown (ApiError or an unexpected bug) into an ApiError with Bangla text. */
+export function asApiError(e: unknown): ApiError {
+  if (e instanceof ApiError) return e;
+  console.error('Unexpected error', e);
+  return new ApiError(GENERIC_ERROR_BN, -1);
 }
 
 // --- connectivity events (used by the global error banner) -------------------------------

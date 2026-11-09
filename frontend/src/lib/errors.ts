@@ -4,9 +4,15 @@
 export const NETWORK_ERROR_BN = 'সার্ভারের সাথে সংযোগ করা যাচ্ছে না';
 export const GENERIC_ERROR_BN = 'কিছু একটা ভুল হয়েছে, আবার চেষ্টা করুন';
 
+const DUPLICATE_HOLD = 'You already have an active hold for this class.';
+
+/** 409 because the student already holds/has confirmed a seat in this class (vs. class full). */
+export const isDuplicateHoldError = (e: { status: number; serverMessage?: string }): boolean =>
+  e.status === 409 && e.serverMessage === DUPLICATE_HOLD;
+
 const KNOWN_MESSAGES: Record<string, string> = {
   'This class is full. No seats are available right now.': 'এই ক্লাসে কোনো আসন খালি নেই',
-  'You already have an active hold for this class.': 'এই ক্লাসে আপনার ইতিমধ্যে একটি সক্রিয় আবেদন আছে',
+  [DUPLICATE_HOLD]:'এই ক্লাসে আপনার ইতিমধ্যে একটি সক্রিয় আবেদন আছে',
   'This hold has expired. Please place a new hold.': 'মেয়াদ শেষ হয়ে গেছে, আবার আবেদন করুন',
   'This hold was cancelled and can no longer be confirmed.': 'এই আবেদনটি বাতিল করা হয়েছে, এটি আর নিশ্চিত করা যাবে না',
   'A confirmed admission cannot be cancelled.': 'নিশ্চিত ভর্তি বাতিল করা যায় না',
