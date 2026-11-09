@@ -1,10 +1,11 @@
 import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
+import { GlobalErrorBanner } from './components/GlobalErrorBanner';
 import { StudentIdInput } from './components/StudentIdInput';
 import { ClassListPage } from './pages/ClassListPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { CreateClassPage } from './pages/CreateClassPage';
 import { HoldPage } from './pages/HoldPage';
-import { Placeholder } from './pages/Placeholder';
+import { MyHoldsPage } from './pages/MyHoldsPage';
 
 function Layout() {
   return (
@@ -22,6 +23,7 @@ function Layout() {
           <StudentIdInput />
         </div>
       </header>
+      <GlobalErrorBanner />
       <main className="container">
         <Outlet />
       </main>
@@ -36,7 +38,7 @@ export default function App() {
         <Route path="/" element={<ClassListPage />} />
         <Route path="/classes/new" element={<CreateClassPage />} />
         <Route path="/holds/:holdId" element={<HoldPage />} />
-        <Route path="/me" element={<Placeholder title="আমার আবেদন" />} />
+        <Route path="/me" element={<MyHoldsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

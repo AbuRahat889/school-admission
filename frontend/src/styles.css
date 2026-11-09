@@ -414,3 +414,53 @@ a.btn {
 .hold-card p {
   margin: 0;
 }
+
+/* ---------- global banner + my holds ---------- */
+.global-banner {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-bottom: 1px solid #f5c2c2;
+}
+
+.global-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.6rem;
+  padding-bottom: 0.6rem;
+}
+
+.btn-small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.empty p {
+  margin-top: 0;
+}
+
+.hold-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.hold-row {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+}
+
+.hold-row-main {
+  flex: 1 1 220px;
+  min-width: 0;
+}

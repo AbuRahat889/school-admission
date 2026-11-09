@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api, asApiError, type ApiError } from '../api/client';
 import type { HoldStatus } from '../api/types';
+import { LoadError } from '../components/LoadError';
 import { StatusBadge } from '../components/StatusBadge';
 import { effectiveStatus, formatCountdown, useNow } from '../lib/holdStatus';
 import { useStudentId } from '../lib/studentIdContext';
@@ -31,11 +32,12 @@ export function HoldPage() {
       <section className="narrow">
         <h1>আবেদনের অবস্থা</h1>
         {hold.loading && <p className="muted">লোড হচ্ছে…</p>}
-        {hold.error && (
+        {hold.error?.status === 404 && (
           <div className="banner banner-error" role="alert">
-            {hold.error.status === 404 ? 'আবেদনটি খুঁজে পাওয়া যায়নি' : hold.error.message}
+            আবেদনটি খুঁজে পাওয়া যায়নি
           </div>
         )}
+        {hold.error && hold.error.status !== 404 && <LoadError error={hold.error} onRetry={hold.refresh} />}
         <Link to="/">ক্লাস তালিকায় ফিরে যান</Link>
       </section>
     );
@@ -115,10 +117,6 @@ export function HoldPage() {
           </button>
         </div>
       </div>
-
-      {hold.error && (
-        <p className="hint hint-error">সর্বশেষ তথ্য হালনাগাদ করা যায়নি: {hold.error.message}</p>
-      )}
 
       <p>
         <Link to="/me">আমার সব আবেদন দেখুন</Link>

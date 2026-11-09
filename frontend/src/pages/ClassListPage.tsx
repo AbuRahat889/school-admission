@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, asApiError, type ApiError } from '../api/client';
 import type { ClassSummary } from '../api/types';
+import { LoadError } from '../components/LoadError';
 import { isDuplicateHoldError } from '../lib/errors';
 import { useStudentId } from '../lib/studentIdContext';
 import { usePageTitle } from '../lib/usePageTitle';
@@ -47,11 +48,7 @@ export function ClassListPage() {
 
       {classes.loading && !classes.data && <p className="muted">লোড হচ্ছে…</p>}
 
-      {classes.error && !classes.data && (
-        <div className="banner banner-error" role="alert">
-          {classes.error.message}
-        </div>
-      )}
+      {classes.error && !classes.data && <LoadError error={classes.error} onRetry={classes.refresh} />}
 
       {classes.data && classes.data.length === 0 && (
         <div className="empty">
