@@ -315,3 +315,18 @@ a.btn {
 .stat-none dd {
   color: var(--danger);
 }
+
+/* ---------- forms ---------- */
+.narrow {
+  max-width: 560px;
+}
+
+.form {
+  gap: 1rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}

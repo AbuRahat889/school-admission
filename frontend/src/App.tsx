@@ -2,6 +2,7 @@ import { NavLink, Outlet, Route, Routes } from 'react-router-dom';
 import { StudentIdInput } from './components/StudentIdInput';
 import { ClassListPage } from './pages/ClassListPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { CreateClassPage } from './pages/CreateClassPage';
 import { Placeholder } from './pages/Placeholder';
 
 function Layout() {
@@ -32,7 +33,7 @@ export default function App() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<ClassListPage />} />
-        <Route path="/classes/new" element={<Placeholder title="নতুন ক্লাস তৈরি" />} />
+        <Route path="/classes/new" element={<CreateClassPage />} />
         <Route path="/holds/:holdId" element={<Placeholder title="আবেদনের অবস্থা" />} />
         <Route path="/me" element={<Placeholder title="আমার আবেদন" />} />
         <Route path="*" element={<NotFoundPage />} />
