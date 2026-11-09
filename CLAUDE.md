@@ -34,3 +34,12 @@ GET /me/holds (header X-Student-Id) -> [{holdId,classId,className,status,expires
 ## Commits
 - Plain conventional commit messages only, one line subject, optional short body.
 - NEVER add trailers: no Co-Authored-By, no "Generated with Claude Code", no Claude-Session.
+
+## UI language
+- All user-facing text in the frontend is Bangla (Bengali). Labels, buttons, status badges, error messages, placeholders, page titles — everything. Code, variable names and comments stay English.
+- Status display: HELD → "অপেক্ষমাণ", CONFIRMED → "নিশ্চিত", EXPIRED → "মেয়াদ শেষ", CANCELLED → "বাতিল". API values stay uppercase English.
+- Use a Bangla-capable font stack: "Noto Sans Bengali", "Hind Siliguri", system-ui, sans-serif. Load Noto Sans Bengali from Google Fonts in index.html.
+- Numbers may stay in Latin digits (0-9).
+
+
+
