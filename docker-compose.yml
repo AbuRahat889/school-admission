@@ -2,13 +2,13 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: school_admission
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-school_admission}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d school_admission"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-school_admission}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -23,8 +23,8 @@ services:
       db:
         condition: service_healthy
     environment:
-      ConnectionStrings__Default: "Host=db;Port=5432;Database=school_admission;Username=postgres;Password=postgres"
-      HOLD_DURATION_SECONDS: "600"
+      ConnectionStrings__Default: ${ConnectionStrings__Default:-Host=db;Port=5432;Database=school_admission;Username=postgres;Password=postgres}
+      HOLD_DURATION_SECONDS: ${HOLD_DURATION_SECONDS:-600}
     ports:
       - "8080:8080"
 
@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
       args:
         # Baked into the bundle at build time; it is the URL the browser calls.
-        VITE_API_URL: http://localhost:8080
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     depends_on:
       - backend
     ports:
